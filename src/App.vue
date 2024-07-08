@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRouter } from 'vue-router'
+
 const router = useRouter()
+const routes = { '/login': true, '/register': true }
+
+const isLoginOrRegisterRoute = routes[router.currentRoute.value.path]
 </script>
 
 <template>
-  <nav v-if="router.currentRoute.value.path !== '/login'">
+  <nav v-if="isLoginOrRegisterRoute">
     <RouterLink to="/">Home</RouterLink>
     <RouterLink to="/about">About</RouterLink>
   </nav>

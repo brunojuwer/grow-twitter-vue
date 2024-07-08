@@ -1,36 +1,30 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 
-async function handleLogin() {
+async function handleCreateAccount() {
   console.log('Login')
 }
 </script>
 
 <template>
   <main>
-    <section class="grow-info">
-      <h4>Growtwitter</h4>
-      <span>Trabalho final do bloco intermediário</span>
-      <p>
-        O Growtwitter é a plataforma definitiva para todos os apaixonados por redes sociais que
-        buscam uma experiência familiar e poderosa, semelhante ao Twitter, mas com um toque único.
-        Seja parte desta comunidade que valoriza a liberdade de expressão, a conexão com pessoas de
-        todo o mundo e a disseminação de ideias.
-      </p>
-    </section>
-    <section class="login-container">
-      <h4>Entrar no Growtwitter</h4>
-      <form @submit.prevent="handleLogin">
+    <section class="register-container">
+      <h4>Criar conta</h4>
+      <form @submit.prevent="handleCreateAccount">
         <label for="username">Username</label>
         <input type="text" id="username" />
+        <label for="email">Email</label>
+        <input type="email" id="email" />
         <label for="password">Password</label>
         <input type="password" id="password" />
+        <label for="password-retype">Confirm password</label>
+        <input type="password" id="password-retype" />
         <button class="default_button" type="submit">Sign in</button>
       </form>
       <div>
         <p>Or</p>
       </div>
-      <RouterLink class="register-link" to="/register">Create account</RouterLink>
+      <RouterLink class="login-link" to="/login">Sign in</RouterLink>
     </section>
   </main>
 </template>
@@ -68,7 +62,7 @@ main {
   font-size: 0.875rem;
 }
 
-.login-container {
+.register-container {
   width: 100%;
   background-color: var(--white);
   border-top-right-radius: 8px;
@@ -79,7 +73,7 @@ main {
   padding: 1.875rem;
 }
 
-.login-container h4 {
+.register-container h4 {
   text-align: center;
   color: var(--black);
   font-size: 1.25rem;
@@ -87,14 +81,14 @@ main {
   font-weight: 600;
 }
 
-.login-container div {
+.register-container div {
   margin-top: 1.5rem;
   border-top: 1px solid var(--black);
   display: flex;
   justify-content: center;
 }
 
-.login-container div p {
+.register-container div p {
   display: inline-block;
   margin-top: -0.97rem;
   background-color: white;
@@ -127,7 +121,7 @@ button {
   margin-top: 1rem;
 }
 
-.register-link {
+.login-link {
   margin-top: 0.875rem;
   text-align: center;
   text-decoration: none;
@@ -135,7 +129,7 @@ button {
   color: var(--blue);
 }
 
-.register-link:hover {
+.login-link:hover {
   text-decoration: underline;
 }
 
@@ -144,7 +138,7 @@ button {
     flex-direction: column-reverse;
   }
 
-  .login-container {
+  .register-container {
     border-top-right-radius: 8px;
     border-top-left-radius: 8px;
     border-bottom-right-radius: 0;
