@@ -1,1 +1,16 @@
 @import './base.css';
+
+.default_button {
+  background-color: var(--blue);
+  color: var(--white);
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: ease 300ms opacity;
+}
+
+.default_button:hover {
+  opacity: 0.7;
+}
