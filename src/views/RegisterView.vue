@@ -1,33 +1,81 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { ref } from 'vue'
+import StepProgress from '@/components/StepProgress.vue'
+import LoadingSpinner from '@/components/icons/LoadingSpinner.vue'
+
+const signingIn = ref(false)
 
 async function handleCreateAccount() {
-  console.log('Login')
+  signingIn.value = true
+}
+const currentStep = ref(0)
+const steps = ref<Array<number>>([0])
+
+function nextStep() {
+  if (currentStep.value < 2) {
+    currentStep.value++
+    steps.value.push(currentStep.value)
+  }
+}
+
+function previousStep() {
+  if (currentStep.value >= 1) {
+    currentStep.value--
+    steps.value.pop()
+  }
 }
 </script>
 
 <template>
   <main>
+    <h4>Create account</h4>
+    <section class="progress-container">
+      <StepProgress :step="currentStep" :steps="steps" />
+    </section>
+
     <section class="register-container">
-      <h4>Criar conta</h4>
-      <form @submit.prevent="handleCreateAccount">
-        <label for="username">Username</label>
-        <input type="text" id="username" />
-        <label for="email">Email</label>
-        <input type="email" id="email" />
-        <label for="password">Password</label>
-        <input type="password" id="password" />
-        <label for="password-retype">Confirm password</label>
-        <input type="password" id="password-retype" />
-        <button class="default_button" type="submit">Sign in</button>
-      </form>
-      <div>
-        <p>Or</p>
+      <div class="input-container" v-if="currentStep === 0">
+        <label for="username">Choose a username:</label>
+        <input type="text" id="username" placeholder="Ex: jondoe" />
+
+        <label for="first-name">First name:</label>
+        <input type="text" id="first-name" placeholder="Ex: Jon" />
+
+        <label for="last-name">First name:</label>
+        <input type="text" id="last-name" placeholder="Ex: Doe" />
       </div>
-      <RouterLink class="login-link" to="/login">Sign in</RouterLink>
+
+      <div class="input-container" v-if="currentStep === 1">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Ex: jondoo@email.com" />
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Ex: 78asd%$@aAjmB0" />
+        <label for="password-retype">Confirm password</label>
+        <input type="password" id="password-retype" placeholder="Ex: 78asd%$@aAjmB0" />
+      </div>
+
+      <div class="input-container" v-if="currentStep === 2">
+        <label for="avatar">Chose an avatar</label>
+        <input type="file" id="avatar" />
+      </div>
+
+      <button class="default_button" type="button" @click="previousStep">Previous</button>
+      <button v-if="currentStep !== 2" class="default_button" type="button" @click="nextStep">
+        Next
+      </button>
+      <button
+        v-if="currentStep === 2"
+        class="default_button"
+        type="button"
+        @click="handleCreateAccount"
+      >
+        <LoadingSpinner v-if="signingIn" />
+        <p v-if="!signingIn">Create</p>
+      </button>
     </section>
   </main>
 </template>
+
 <style scoped>
 main {
   position: absolute;
@@ -36,44 +84,19 @@ main {
   transform: translate(-50%, -50%);
 
   max-width: 700px;
-  display: flex;
+  width: 100%;
   border-radius: 8px;
-  background-color: var(--blue);
-}
-
-.grow-info {
-  max-width: 370px;
-  margin: 1.25rem;
-  margin-bottom: 2.5rem;
-}
-
-.grow-info h4 {
-  font-size: 1.375rem;
-  margin-top: 1.25rem;
-  margin-bottom: 0.875rem;
-}
-
-.grow-info span {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.75rem;
-}
-.grow-info p {
-  font-size: 0.875rem;
+  background-color: var(--white);
 }
 
 .register-container {
   width: 100%;
-  background-color: var(--white);
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-
   display: flex;
   flex-direction: column;
   padding: 1.875rem;
 }
 
-.register-container h4 {
+h4 {
   text-align: center;
   color: var(--black);
   font-size: 1.25rem;
@@ -81,25 +104,8 @@ main {
   font-weight: 600;
 }
 
-.register-container div {
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--black);
-  display: flex;
-  justify-content: center;
-}
-
-.register-container div p {
-  display: inline-block;
-  margin-top: -0.97rem;
-  background-color: white;
-  padding: 0.25rem 0.75rem;
-  color: var(--black-soft);
-  text-align: center;
-  font-size: 0.75rem;
-}
-
-form {
-  margin-top: 1rem;
+.input-container {
+  margin: 1rem 0;
   display: flex;
   flex-direction: column;
 }
@@ -109,39 +115,24 @@ label {
   font-size: 0.75rem;
   font-weight: 600;
   opacity: 0.4;
+  margin-bottom: 0.25rem;
 }
 
 input {
   border-radius: 6px;
   border: 1.5px solid var(--gray-soft);
-  padding: 0.25rem 1rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
 }
 
 button {
   margin-top: 1rem;
 }
 
-.login-link {
-  margin-top: 0.875rem;
-  text-align: center;
-  text-decoration: none;
-  font-size: 0.7rem;
-  color: var(--blue);
-}
-
-.login-link:hover {
-  text-decoration: underline;
-}
-
 @media (max-width: 1000px) {
   main {
     flex-direction: column-reverse;
-  }
-
-  .register-container {
-    border-top-right-radius: 8px;
-    border-top-left-radius: 8px;
-    border-bottom-right-radius: 0;
   }
 }
 </style>
