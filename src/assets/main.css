@@ -14,3 +14,13 @@
 .default_button:hover {
   opacity: 0.7;
 }
+
+.default_button:disabled {
+  background-color: var(--gray-soft);
+  color: var(--white);
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  cursor: not-allowed;
+}

@@ -1,15 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import StepProgress from '@/components/StepProgress.vue'
 import LoadingSpinner from '@/components/icons/LoadingSpinner.vue'
+import type { ICreateAccount } from '@/types'
 
 const signingIn = ref(false)
+const currentStep = ref(0)
+const steps = ref<Array<number>>([0])
+
+const account = reactive<ICreateAccount>({
+  username: '',
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  avatar: ''
+})
 
 async function handleCreateAccount() {
   signingIn.value = true
+  console.log(account)
 }
-const currentStep = ref(0)
-const steps = ref<Array<number>>([0])
 
 function nextStep() {
   if (currentStep.value < 2) {
@@ -36,30 +47,47 @@ function previousStep() {
     <section class="register-container">
       <div class="input-container" v-if="currentStep === 0">
         <label for="username">Choose a username:</label>
-        <input type="text" id="username" placeholder="Ex: jondoe" />
+        <input type="text" id="username" placeholder="Ex: jondoe" v-model="account.username" />
 
         <label for="first-name">First name:</label>
-        <input type="text" id="first-name" placeholder="Ex: Jon" />
+        <input type="text" id="first-name" placeholder="Ex: Jon" v-model="account.firstName" />
 
-        <label for="last-name">First name:</label>
-        <input type="text" id="last-name" placeholder="Ex: Doe" />
+        <label for="last-name">Last name:</label>
+        <input type="text" id="last-name" placeholder="Ex: Doe" v-model="account.lastName" />
       </div>
 
       <div class="input-container" v-if="currentStep === 1">
         <label for="email">Email</label>
-        <input type="email" id="email" placeholder="Ex: jondoo@email.com" />
+        <input
+          type="email"
+          id="email"
+          placeholder="Ex: jondoo@email.com.br"
+          v-model="account.email"
+        />
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Ex: 78asd%$@aAjmB0" />
+        <input
+          type="password"
+          id="password"
+          placeholder="Ex: 78asd%$@aAjmB0"
+          v-model="account.password"
+        />
         <label for="password-retype">Confirm password</label>
         <input type="password" id="password-retype" placeholder="Ex: 78asd%$@aAjmB0" />
       </div>
 
       <div class="input-container" v-if="currentStep === 2">
-        <label for="avatar">Chose an avatar</label>
-        <input type="file" id="avatar" />
+        <label for="avatar">Choose an avatar</label>
+        <input type="file" id="avatar" v-on:change="account.avatar" />
       </div>
 
-      <button class="default_button" type="button" @click="previousStep">Previous</button>
+      <button
+        :disabled="currentStep === 0"
+        class="default_button"
+        type="button"
+        @click="previousStep"
+      >
+        Previous
+      </button>
       <button v-if="currentStep !== 2" class="default_button" type="button" @click="nextStep">
         Next
       </button>
