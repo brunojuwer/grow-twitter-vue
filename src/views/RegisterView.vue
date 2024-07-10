@@ -6,6 +6,7 @@ import { reactive, ref, watch } from 'vue'
 import StepProgress from '@/components/StepProgress.vue'
 import LoadingSpinner from '@/components/icons/LoadingSpinner.vue'
 import { verifyUsernameOrEmailAvailability } from '@/services/api'
+import { isAValidEmail } from '@/utils/email'
 
 const signingIn = ref(false)
 const currentStep = ref(0)
@@ -22,12 +23,8 @@ const account = reactive<ICreateAccount>({
 
 const validators = reactive({
   username: false,
-  firstName: false,
-  lastName: false,
   email: false,
-  password: false,
-  passwordRetype: false,
-  avatar: false
+  passwordRetype: ''
 })
 
 async function handleCreateAccount() {
@@ -58,15 +55,6 @@ watch(
   }
 )
 
-watch(account, () => {
-  if (account.firstName.length >= 2) {
-    validators.firstName = true
-  }
-  if (account.lastName.length >= 2) {
-    validators.lastName = true
-  }
-})
-
 function nextStep() {
   if (currentStep.value < 2) {
     currentStep.value++
@@ -92,7 +80,7 @@ function previousStep() {
     <section class="register-container">
       <div class="input-container" v-if="currentStep === 0">
         <label for="username">Choose a username:</label>
-        <input type="text" id="username" placeholder="Ex: jondoe" v-model="account.username" />
+        <input type="text" id="username" placeholder="Ex: johndoe" v-model="account.username" />
         <div class="message-container">
           <p v-if="account.username.length >= 1 && !validators.username" class="error-message">
             Username already in use.
@@ -102,25 +90,11 @@ function previousStep() {
           </p>
         </div>
         <label for="first-name">First name:</label>
-        <input type="text" id="first-name" placeholder="Ex: Jon" v-model="account.firstName" />
-        <div class="message-container">
-          <p v-if="account.firstName.length >= 1 && !validators.firstName" class="error-message">
-            First name is required.
-          </p>
-          <p v-if="account.firstName.length >= 1 && validators.firstName" class="success-message">
-            First name is ok.
-          </p>
-        </div>
+        <input type="text" id="first-name" placeholder="Ex: John" v-model="account.firstName" />
+        <div class="message-container"></div>
         <label for="last-name">Last name:</label>
         <input type="text" id="last-name" placeholder="Ex: Doe" v-model="account.lastName" />
-        <div class="message-container">
-          <p v-if="account.lastName.length >= 1 && !validators.lastName" class="error-message">
-            Last name is required.
-          </p>
-          <p v-if="account.lastName.length >= 1 && validators.lastName" class="success-message">
-            Last name is ok.
-          </p>
-        </div>
+        <div class="message-container"></div>
       </div>
 
       <div class="input-container" v-if="currentStep === 1">
@@ -128,24 +102,22 @@ function previousStep() {
         <input
           type="email"
           id="email"
-          placeholder="Ex: jondoo@email.com.br"
+          placeholder="Ex: jonndoe@email.com.br"
           v-model="account.email"
         />
         <div class="message-container">
-          <p v-if="account.username.length >= 1 && !validators.email" class="error-message">
+          <p v-if="account.email.length >= 4 && !validators.email" class="error-message">
             Email already in use.
           </p>
           <p
-            v-if="
-              account.username.length >= 4 &&
-              !account.email.includes('@') &&
-              !account.email.includes('.com')
-            "
+            v-if="!isAValidEmail(account.email) && account.email.length >= 4"
             class="error-message"
           >
             Please provide a valid email.
           </p>
-          <p v-else class="success-message">Email is valid and available.</p>
+          <p v-if="isAValidEmail(account.email) && validators.email" class="success-message">
+            Email is valid and available.
+          </p>
         </div>
         <label for="password">Password</label>
         <input
@@ -155,14 +127,29 @@ function previousStep() {
           v-model="account.password"
         />
         <div class="message-container">
-          <p v-if="false" class="error-message">Username already in use.</p>
-          <p v-if="false" class="success-message">Username is available.</p>
+          <p
+            v-if="account.password.length > 0 && account.password.length < 5"
+            class="error-message"
+          >
+            Password must have more than five characters.
+          </p>
         </div>
         <label for="password-retype">Confirm password</label>
-        <input type="password" id="password-retype" placeholder="Ex: 78asd%$@aAjmB0" />
+        <input
+          type="password"
+          id="password-retype"
+          placeholder="Ex: 78asd%$@aAjmB0"
+          v-model="validators.passwordRetype"
+        />
         <div class="message-container">
-          <p v-if="false" class="error-message">Username already in use.</p>
-          <p v-if="false" class="success-message">Username is available.</p>
+          <p
+            v-if="
+              account.password !== validators.passwordRetype && validators.passwordRetype.length > 0
+            "
+            class="error-message"
+          >
+            Passwords doesn't match.
+          </p>
         </div>
       </div>
 
@@ -184,7 +171,7 @@ function previousStep() {
         Previous
       </button>
       <button
-        :disabled="!(validators.username && validators.firstName && validators.lastName)"
+        :disabled="!(validators.username && account.firstName && account.lastName)"
         v-if="currentStep === 0"
         class="default_button"
         type="button"
@@ -193,7 +180,13 @@ function previousStep() {
         Next
       </button>
       <button
-        :disabled="!(validators.email && validators.password && validators.passwordRetype)"
+        :disabled="
+          !(
+            validators.email &&
+            isAValidEmail(account.email) &&
+            validators.passwordRetype === account.password
+          )
+        "
         v-if="currentStep === 1"
         class="default_button"
         type="button"

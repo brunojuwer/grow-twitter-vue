@@ -24,19 +24,3 @@
   border-radius: 0.375rem;
   cursor: not-allowed;
 }
-
-.border_ok {
-  border: 1.5px solid var(--green-success);
-}
-
-.border_ok:focus {
-  border: 1.5px solid var(--green-success);
-}
-
-.border_fail {
-  border: 1.5px solid var(--red-danger);
-}
-
-.border_fail:focus {
-  border: 1.5px solid var(--red-danger);
-}
