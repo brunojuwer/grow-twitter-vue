@@ -5,10 +5,11 @@ import { reactive, ref, watch } from 'vue'
 
 import StepProgress from '@/components/StepProgress.vue'
 import LoadingSpinner from '@/components/icons/LoadingSpinner.vue'
-import { verifyUsernameOrEmailAvailability } from '@/services/api'
+import { createUser, verifyUsernameOrEmailAvailability } from '@/services/api'
 import { isAValidEmail } from '@/utils/email'
+import router from '@/router/index.ts'
 
-const signingIn = ref(false)
+const signingUp = ref(false)
 const currentStep = ref(0)
 const steps = ref<Array<number>>([0])
 
@@ -18,27 +19,61 @@ const account = reactive<ICreateAccount>({
   lastName: '',
   email: '',
   password: '',
-  avatar: ''
+  avatar: undefined
 })
 
 const validators = reactive({
   username: false,
   email: false,
-  passwordRetype: ''
+  passwordRetype: '',
+  avatarSize: true,
+  avatarType: true
 })
 
+function bindImage(event: any) {
+  const file = event.target.files[0]
+  console.log(file)
+
+  if (file.size > 30900) {
+    validators.avatarSize = false
+    return
+  }
+  if (!file.type.match(/\/(png|jpeg)$/)) {
+    validators.avatarType = false
+    return
+  }
+  validators.avatarSize = true
+  validators.avatarType = true
+  account.avatar = file
+}
+
 async function handleCreateAccount() {
-  signingIn.value = true
+  signingUp.value = true
+  const formData = new FormData()
+
+  formData.append('username', account.username)
+  formData.append('first_name', account.firstName)
+  formData.append('last_name', account.lastName)
+  formData.append('email', account.email)
+  formData.append('password', account.password)
+  formData.append('avatar', account.avatar)
+
+  const response = await createUser(formData)
+  if (response.status === 201) {
+    router.push('/')
+  }
 }
 
 watch(
   () => account.username,
   async () => {
-    const response = await verifyUsernameOrEmailAvailability(account.username)
-    if (response.status === 200) {
-      validators.username = true
-    } else {
-      validators.username = false
+    if (account.username) {
+      const response = await verifyUsernameOrEmailAvailability(account.username)
+      if (response.status === 200) {
+        validators.username = true
+      } else {
+        validators.username = false
+      }
     }
   }
 )
@@ -46,11 +81,13 @@ watch(
 watch(
   () => account.email,
   async () => {
-    const response = await verifyUsernameOrEmailAvailability(account.email)
-    if (response.status === 200) {
-      validators.email = true
-    } else {
-      validators.email = false
+    if (account.email) {
+      const response = await verifyUsernameOrEmailAvailability(account.email)
+      if (response.status === 200) {
+        validators.email = true
+      } else {
+        validators.email = false
+      }
     }
   }
 )
@@ -154,11 +191,16 @@ function previousStep() {
       </div>
 
       <div class="input-container" v-if="currentStep === 2">
-        <label for="avatar">Choose an avatar</label>
-        <input type="file" id="avatar" v-on:change="account.avatar" />
+        <label class="avatar-label">Choose an avatar</label>
+        <label for="avatar" class="label-upload">Upload +</label>
+        <input type="file" id="avatar" @change="bindImage" />
         <div class="message-container">
-          <p v-if="false" class="error-message">Username already in use.</p>
-          <p v-if="false" class="success-message">Username is available.</p>
+          <p
+            v-if="!validators.avatarSize || !validators.avatarType"
+            class="error-message avatar-error"
+          >
+            Avatar size must not exceed 30KB and must be in JPEG or PNG format.
+          </p>
         </div>
       </div>
 
@@ -195,13 +237,14 @@ function previousStep() {
         Next
       </button>
       <button
+        :disabled="!(validators.avatarSize && validators.avatarType)"
         v-if="currentStep === 2"
         class="default_button"
         type="button"
         @click="handleCreateAccount"
       >
-        <LoadingSpinner v-if="signingIn" />
-        <p v-if="!signingIn">Create</p>
+        <LoadingSpinner v-if="signingUp" />
+        <p v-if="!signingUp">Create</p>
       </button>
     </section>
   </main>
@@ -254,6 +297,36 @@ input {
   border: 1.5px solid var(--gray-soft);
   padding: 0.5rem 0.75rem;
   font-size: 0.75rem;
+}
+
+input[type='file'] {
+  display: none;
+}
+
+.label-upload {
+  background-color: var(--blue-dark);
+  color: var(--white);
+  align-self: center;
+  padding: 0.25rem 1rem;
+  opacity: 1;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+
+  transition: ease 300ms opacity;
+}
+
+.label-upload:hover {
+  opacity: 0.7;
+}
+
+.avatar-label {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.avatar-error {
+  text-align: center;
 }
 
 .message-container {
