@@ -7,7 +7,7 @@ import StepProgress from '@/components/StepProgress.vue'
 import LoadingSpinner from '@/components/icons/LoadingSpinner.vue'
 import { createUser, verifyUsernameOrEmailAvailability } from '@/services/api'
 import { isAValidEmail } from '@/utils/email'
-import router from '@/router/index.ts'
+import router from '@/router/'
 
 const signingUp = ref(false)
 const currentStep = ref(0)
@@ -56,7 +56,7 @@ async function handleCreateAccount() {
   formData.append('last_name', account.lastName)
   formData.append('email', account.email)
   formData.append('password', account.password)
-  formData.append('avatar', account.avatar)
+  formData.append('avatar', account.avatar ?? '')
 
   const response = await createUser(formData)
   if (response.status === 201) {
