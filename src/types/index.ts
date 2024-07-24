@@ -1,3 +1,3 @@
 import type ICreateAccount from './ICreateAccount'
-
-export type { ICreateAccount }
+import type { ICredentials } from './ICredentials'
+export type { ICreateAccount, ICredentials }

@@ -1,153 +1,76 @@
 <script setup lang="ts">
+import { login } from '@/services/api'
+import { reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
+const visible = ref<boolean>()
+const credentials = reactive({
+  email: '',
+  password: ''
+})
+
 async function handleLogin() {
-  console.log('Login')
+  const response = await login(credentials)
+  console.log(response)
 }
 </script>
 
 <template>
-  <main>
-    <section class="grow-info">
-      <h4>Growtwitter</h4>
-      <span>Trabalho final do bloco intermediário</span>
-      <p>
-        O Growtwitter é a plataforma definitiva para todos os apaixonados por redes sociais que
-        buscam uma experiência familiar e poderosa, semelhante ao Twitter, mas com um toque único.
-        Seja parte desta comunidade que valoriza a liberdade de expressão, a conexão com pessoas de
-        todo o mundo e a disseminação de ideias.
-      </p>
-    </section>
-    <section class="login-container">
-      <h4>Entrar no Growtwitter</h4>
-      <form @submit.prevent="handleLogin">
-        <label for="username">Username</label>
-        <input type="text" id="username" />
-        <label for="password">Password</label>
-        <input type="password" id="password" />
-        <button class="default_button" type="submit">Sign in</button>
-      </form>
-      <div>
-        <p>Or</p>
+  <form @submit.prevent="handleLogin">
+    <h1 class="text-center my-5 text-blue">Sign in</h1>
+    <v-card class="mx-auto pa-12 pb-8" elevation="8" max-width="448" rounded="lg">
+      <div class="text-subtitle-1 text-medium-emphasis">Account</div>
+
+      <v-text-field
+        density="compact"
+        placeholder="Email address"
+        prepend-inner-icon="mdi-email-outline"
+        variant="outlined"
+        v-model="credentials.email"
+      ></v-text-field>
+
+      <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between">
+        Password
+
+        <a
+          class="text-caption text-decoration-none text-blue"
+          href="#"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Forgot login password?</a
+        >
       </div>
-      <RouterLink class="register-link" to="/register">Create account</RouterLink>
-    </section>
-  </main>
+
+      <v-text-field
+        :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+        :type="visible ? 'text' : 'password'"
+        density="compact"
+        placeholder="Enter your password"
+        prepend-inner-icon="mdi-lock-outline"
+        variant="outlined"
+        @click:append-inner="visible = !visible"
+        v-model="credentials.password"
+      ></v-text-field>
+
+      <v-btn
+        :disabled="credentials.email.length === 0 && credentials.password.length < 4"
+        type="submit"
+        class="mb-8"
+        color="blue"
+        size="large"
+        variant="tonal"
+        block
+      >
+        Log In
+      </v-btn>
+
+      <v-card-text class="text-center">
+        <RouterLink to="/register" class="text-blue text-decoration-none" rel="noopener noreferrer">
+          Sign up now <v-icon icon="mdi-chevron-right"></v-icon>
+        </RouterLink>
+      </v-card-text>
+    </v-card>
+  </form>
 </template>
-<style scoped>
-main {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  max-width: 700px;
-  display: flex;
-  border-radius: 8px;
-  background-color: var(--blue);
-}
-
-.grow-info {
-  max-width: 370px;
-  margin: 1.25rem;
-  margin-bottom: 2.5rem;
-}
-
-.grow-info h4 {
-  font-size: 1.375rem;
-  margin-top: 1.25rem;
-  margin-bottom: 0.875rem;
-}
-
-.grow-info span {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.75rem;
-}
-.grow-info p {
-  font-size: 0.875rem;
-}
-
-.login-container {
-  width: 100%;
-  background-color: var(--white);
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-
-  display: flex;
-  flex-direction: column;
-  padding: 1.875rem;
-}
-
-.login-container h4 {
-  text-align: center;
-  color: var(--black);
-  font-size: 1.25rem;
-  margin-top: 1.75rem;
-  font-weight: 600;
-}
-
-.login-container div {
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--black);
-  display: flex;
-  justify-content: center;
-}
-
-.login-container div p {
-  display: inline-block;
-  margin-top: -0.97rem;
-  background-color: white;
-  padding: 0.25rem 0.75rem;
-  color: var(--black-soft);
-  text-align: center;
-  font-size: 0.75rem;
-}
-
-form {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-}
-
-label {
-  color: var(--black);
-  font-size: 0.75rem;
-  font-weight: 600;
-  opacity: 0.4;
-}
-
-input {
-  border-radius: 6px;
-  border: 1.5px solid var(--gray-soft);
-  padding: 0.25rem 1rem;
-}
-
-button {
-  margin-top: 1rem;
-}
-
-.register-link {
-  margin-top: 0.875rem;
-  text-align: center;
-  text-decoration: none;
-  font-size: 0.7rem;
-  color: var(--blue);
-}
-
-.register-link:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 1000px) {
-  main {
-    flex-direction: column-reverse;
-  }
-
-  .login-container {
-    border-top-right-radius: 8px;
-    border-top-left-radius: 8px;
-    border-bottom-right-radius: 0;
-  }
-}
-</style>
+<style scoped></style>
